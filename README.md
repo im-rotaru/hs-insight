@@ -96,3 +96,43 @@ This project is open-source and designed to support iterative learning, biomedic
 docker build -t hs-vep:latest .
 ```
 
+
+## Optional: Speed Up VEP with Local Cache/FASTA
+
+If you plan to annotate large VCFs or use VEP offline, it's strongly recommended to download the Ensembl cache and FASTA files. This can be done **after building the image**:
+
+```bash
+# Download cache/FASTA into your home (will use tens of GBs)
+docker run -it -v ~/.vep:/root/.vep hs-vep:latest bash
+# Inside container:
+cd /opt/vep/ensembl-vep-release-114.2
+perl INSTALL.pl 
+exit
+```
+Then you can run VEP with:
+```bash
+docker run -v $PWD:/data -v ~/.vep:/root/.vep -w /data hs-vep:latest \
+  vep -i test.vcf --cache --offline --species homo_sapiens -o annotated.vcf
+```
+If you skip this step, VEP will use remote DB mode (much slower, requires network, less reproducible).
+
+---
+
+**No Dockerfile changes are required for this step.**  
+Just keep this as documentation for future/other users.
+
+
+
+
+## 🔍 Troubleshooting
+
+- **File Not Found:**  
+  If you see `ERROR: File "example.vcf" does not exist`, ensure you run Docker from the folder containing your input file, or adjust the `-v` path to match.
+
+  Example:
+  ```bash
+  cd data/samples
+  docker run -v $PWD:/data -v ~/.vep:/root/.vep -w /data hs-vep:latest \
+    vep -i example.vcf --cache --offline --species homo_sapiens -o annotated.vcf
+- **Cache Not Found:**
+  Download and mount your .vep cache (see above).
