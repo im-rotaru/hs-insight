@@ -1,14 +1,12 @@
-# Dockerfile for Ensembl VEP + bcftools
-# Used in the HS-Insight pipeline
+# Dockerfile for Ensembl VEP 114.2 + bcftools (Best Practice)
 
 FROM ubuntu:22.04
 
-LABEL maintainer="Rotaru Ionut"
+LABEL maintainer="Ionut Rotaru"
 
-# Avoid interactive prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
+# Install system dependencies and required Perl modules
 RUN apt-get update && \
     apt-get install -y \
     curl \
@@ -22,11 +20,17 @@ RUN apt-get update && \
     libncursesw5-dev \
     libperl-dev \
     perl \
+    perl-modules \
+    libdbi-perl \
+    libdbd-mysql-perl \
+    libmysqlclient-dev \
     bc \
     build-essential \
     wget \
     tabix \
-    locales && \
+    locales \
+    bcftools \
+    cpanminus && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set locale for Perl
@@ -35,23 +39,27 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-# Install bcftools
-RUN cd /opt && \
-    git clone --branch=1.19 https://github.com/samtools/bcftools.git && \
-    cd bcftools && \
-    make && \
-    make install
+# Install bcftools via apt
+RUN cpanm --notest \
+    List::MoreUtils \
+    Module::Build \
+    DBI \
+    DBD::mysql \
+    JSON \
+    LWP::Simple \
+    LWP::Protocol::https \
+    Try::Tiny
 
-# Install Ensembl VEP (minimal setup for testing)
+# Install latest Ensembl VEP (114.2)
 RUN mkdir -p /opt/vep && \
     cd /opt/vep && \
-    curl -sL https://github.com/Ensembl/ensembl-vep/archive/release/110.zip -o vep.zip && \
+    wget https://github.com/Ensembl/ensembl-vep/archive/refs/tags/release/114.2.zip -O vep.zip && \
     unzip vep.zip && \
-    cd ensembl-vep-110 && \
-    perl INSTALL.pl --NO_HTSLIB --NO_CACHE --NO_PLUGINS --NO_TEST
+    cd ensembl-vep-release-114.2 && \
+    perl INSTALL.pl --NO_HTSLIB --NO_TEST && \
+    printf '#!/bin/bash\nexport PERL5LIB=/opt/vep/ensembl-vep-release-114.2/modules${PERL5LIB:+:$PERL5LIB}\nexec /opt/vep/ensembl-vep-release-114.2/vep "$@"\n' > /usr/local/bin/vep && \
+    chmod +x /usr/local/bin/vep
 
-# Set working dir
 WORKDIR /data
 
-# Default command (override in pipeline)
 CMD ["/bin/bash"]

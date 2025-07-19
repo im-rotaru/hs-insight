@@ -76,3 +76,23 @@ hs-insight/
 ---
 
 This project is open-source and designed to support iterative learning, biomedical exploration, and infrastructure best practices for genomics research.
+
+
+
+
+---
+
+
+
+# Ensembl VEP 114.2 + bcftools Docker Image
+
+## Included
+- Ensembl VEP 114.2
+- bcftools (Ubuntu package)
+- All core Perl/CPAN dependencies
+
+## Build:
+```bash
+docker build -t hs-vep:latest .
+```
+
