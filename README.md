@@ -69,7 +69,7 @@ hs-insight/
 | -------------- | --------------------------------------------------------- |
 | DevOps         | Docker, CI/CD, GitHub Actions, Terraform                  |
 | Bioinformatics | Variant annotation, VCF processing, workflow automation   |
-| Cloud          | GCP or AWS infrastructure as code                         |
+| Cloud          | AZURE or GCP or AWS infrastructure as code                         |
 | Python         | Data transformation, web dashboards with Streamlit        |
 | ML (optional)  | Variant effect prediction models and integration patterns |
 
