@@ -55,7 +55,7 @@ hs-insight/
 ## Milestone Phases
 
 1. ✅ Project scaffold complete
-2. ⏳ Build Docker environment for VEP + tools
+2. ✅ Build Docker environment for VEP + tools
 3. ⏳ Develop Nextflow pipeline to filter/annotate VCF
 4. ⏳ Deploy infrastructure with Terraform
 5. ⏳ Build interactive dashboard (Streamlit)
